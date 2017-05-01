@@ -4,29 +4,43 @@ import random
 import time
 import Rhino
 
-# groups = rs.SelectedObjects()
-obj = rs.SelectedObjects()
-# exaggerate = rs.GetReal("exaggeration multiplier (try it first and then adjust, default is 1.0)")
-# repeat = rs.GetInteger("number of times to repeat (skip for single execution)")
+count = 0
+selected = rs.SelectedObjects()
+# for obj in selected:
+#     count += 1
 
-print(obj)
+if (selected):
+    print(len(selected))
 
-# if not repeat:
-# repeat = 20
-# exaggerate = 0.02
+if len(selected) == 1 and rs.IsSurface(selected):
+    print("got one")
+    obj = selected
+else:
+    obj = rs.GetSurfaceObject("surface to porcupine-ify", select=True)
 
-# # if not exaggerate:
-# #     exaggerate = 1.0
-# #     print("no dice")
-# #     print(exaggerate)
-# # else:
-# #     print("multiplier supplied")
-# #     print(exaggerate)
+# ucount = rs.GetInteger("# of u points")
+# vcount = rs.GetInteger("# of v points")
 
-# print("exaggeration: ", exaggerate, " :: repeating ", repeat, " times")
+srfcurves = []
+srfpoints = []
+extensionpoints = []
 
-# for time in range(repeat):
-#     for pt in points:
-#         translation = [(random.random()-0.5)*exaggerate, (random.random()-0.5)*exaggerate, (random.random()-0.5)*exaggerate]
-#         rs.MoveObject(pt, translation)
-#     rs.AddInterpCurve(points)
+rs.Command("_-ExtractIsocurve _Direction Both x !")
+rs.Command("_Intersect")
+# rs.Command("_SelNone")
+# rs.Command("_SelCrv")
+# rs.Command("_Hide")
+
+srfpoints = rs.LastCreatedObjects()
+for point in srfpoints:
+    if point:
+        param = rs.SurfaceClosestPoint(obj, point)
+        normal = rs.SurfaceNormal(obj, param)
+        extensionpoints.append(rs.AddPoints( [point, point + normal] ))
+
+
+# for u in range(ucount):
+#     for v in range(vcount):
+#         srfcurves.append(rs.ExtractIsoCurve(obj, u, v))
+
+#         SurfaceNormal
